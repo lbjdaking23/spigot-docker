@@ -13,7 +13,7 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4
 RUN groupadd -g 1000 minecraft && \
     useradd -g minecraft -u 1000 -r -M minecraft && \
     touch /run/first_time && \
-    mkdir -p /opt/minecraft /var/lib/minecraft /usr/src/minecraft && \
+    mkdir -p /opt/minecraft /usr/src/minecraft && \
     echo "set -g status off" > /root/.tmux.conf
 
 COPY spigot /usr/local/bin/
@@ -21,7 +21,7 @@ ONBUILD COPY . /usr/src/minecraft
 
 EXPOSE 25565
 
-VOLUME ["/opt/minecraft", "/var/lib/minecraft"]
+VOLUME ["/opt/minecraft"]
 
 ENTRYPOINT ["/usr/local/bin/spigot"]
 CMD ["run"]
