@@ -6,20 +6,13 @@ MINECRAFT_VERSION=${MINECRAFT_VERSION:-1.9}
 MINECRAFT_JAR=${MINECRAFT_JAR:-"spigot-$MINECRAFT_VERSION.jar"}
 MINECRAFT_STARTUP_JAR=${MINECRAFT_STARTUP_JAR:-"$MINECRAFT_JAR"}
 MINECRAFT_OPTS=${MINECRAFT_OPTS:-"-server -Xmx1024m -XX:MaxPermSize=256m -XX:+UseParNewGC -XX:+UseConcMarkSweepGC"}
-WORLD_DIR="/var/lib/minecraft"
 
 SPIGOT_BUILDTOOLS_URL=${SPIGOT_BUILDTOOLS_URL:-"https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"}
 TMUX_SESSION=spigot
 
 check_env() {
     # Agree to EULA.
-    if [ "$MINECRAFT_EULA" == "true" ]; then
-        echo "Updating $MINECRAFT_HOME/eula.txt"
-        echo "eula=$MINECRAFT_EULA" > $MINECRAFT_HOME/eula.txt
-    else
-        >&2 echo "Mojang requires you to accept their EULA. You need to set the MINECRAFT_EULA variable to true."
-        exit 1
-    fi
+    echo "eula=true" > $MINECRAFT_HOME/eula.txt
 
     # Do not allow to run if there is no DEFAULT_OP
     if [ -z "$DEFAULT_OP" ]; then
@@ -92,13 +85,6 @@ first_run() {
         echo "generate-structures=${GENERATE_STRUCTURES:-true}" >> $MINECRAFT_HOME/server.properties
     fi
 
-    # Copy world template if level folder is empty.
-    if ! find $WORLD_DIR -mindepth 1 -print -quit | grep -q . && { find $MINECRAFT_SRC/world -mindepth 1 -print -quit | grep -q .; }; then
-        echo "World template found in $MINECRAFT_HOME/world"
-        echo "Creating new world in $WORLD_DIR"
-        cp -rf $MINECRAFT_SRC/world* $WORLD_DIR
-    fi
-
     # Create default ops.txt if ops.json does not exist yet.
     if [ ! -f $MINECRAFT_HOME/ops.json ]; then
         echo "Adding $DEFAULT_OP to ops list."
@@ -109,7 +95,7 @@ first_run() {
 
 update_permissions() {
     echo "Updating file permissions"
-    chown -R minecraft:minecraft $MINECRAFT_HOME $WORLD_DIR
+    chown -R minecraft:minecraft $MINECRAFT_HOME
 }
 
 run_spigot() {
@@ -118,7 +104,7 @@ run_spigot() {
     echo "Running Minecraft"
     echo "MINECRAFT_OPTS: $MINECRAFT_OPTS"
 
-    MINECRAFT_COMMAND="gosu minecraft java $MINECRAFT_OPTS -jar $MINECRAFT_HOME/$MINECRAFT_STARTUP_JAR nogui --world-dir $WORLD_DIR"
+    MINECRAFT_COMMAND="gosu minecraft java $MINECRAFT_OPTS -jar $MINECRAFT_HOME/$MINECRAFT_STARTUP_JAR nogui --world-dir $MINECRAFT_HOME/worlds"
     PARAMS=$@
 
     echo "Extra parameters: ${PARAMS[@]}"
