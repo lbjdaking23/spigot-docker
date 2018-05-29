@@ -29,7 +29,7 @@ and enhancements.
         -e MINECRAFT_EULA=true \
         dlord/spigot
 
-By default, this starts up a Spigot 1.11.2 server instance. If you wish to
+By default, this starts up a Spigot 1.12.2 server instance. If you wish to
 start a different server version, you need to set the `MINECRAFT_VERSION`
 variable to the appropriate version. You will need to check Spigot's
 documentation to determine the supported Spigot versions.
